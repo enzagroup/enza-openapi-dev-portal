@@ -1,7 +1,7 @@
 import type { ZudokuConfig } from "zudoku";
 
 const config: ZudokuConfig = {
-  basePath: "/openapi-dev-portal",
+  basePath: "/enza-openapi-dev-portal",
 
   page: {
     pageTitle: "APIs",
