@@ -4,7 +4,7 @@ import logger from "loglevel";
 import { Transform } from "node:stream";
 import { renderToPipeableStream, renderToStaticMarkup } from "react-dom/server";
 import { createStaticHandler, isRouteErrorResponse, createStaticRouter } from "react-router";
-import { Zudoku, Layout, RouterError, ServerError, BootstrapStatic } from "zudoku/components";
+import { Zudoku, Layout, RouteGuard, RouterError, StatusPage, ServerError, BootstrapStatic } from "zudoku/components";
 import { openApiPlugin } from "zudoku/plugins/openapi";
 import "zudoku/plugins/api-catalog";
 import { markdownPlugin } from "zudoku/plugins/markdown";
@@ -12,10 +12,14 @@ import { redirectPlugin } from "zudoku/plugins/redirect";
 import "zudoku/icons";
 const configuredApiPlugins = [];
 const configuredApiCatalogPlugins = [];
+const apiPluginOptions = { "options": {} };
 configuredApiPlugins.push(openApiPlugin({
+  ...apiPluginOptions,
   type: "file",
   input: { "1.0.19": "./apis/openapi.yaml" },
   navigationId: "api",
+  tagPages: ["pet", "store", "user"],
+  loadTags: true,
   schemaImports: {
     "./apis/openapi.yaml": () => import("./assets/openapi.yaml-C31iRuAX.js")
   }
@@ -47,6 +51,7 @@ const convertZudokuConfigToOptions = (config) => {
   const fallbackLogoDark = ((_b = config.page) == null ? void 0 : _b.logoUrl) ?? "https://cdn.zudoku.dev/logos/zudoku-logo-full-dark.svg";
   const isUsingFallback = !((_c = config.page) == null ? void 0 : _c.logoUrl) && !((_f = (_e = (_d = config.page) == null ? void 0 : _d.logo) == null ? void 0 : _e.src) == null ? void 0 : _f.light) && !((_i = (_h = (_g = config.page) == null ? void 0 : _g.logo) == null ? void 0 : _h.src) == null ? void 0 : _i.dark);
   return {
+    protectedRoutes: config.protectedRoutes,
     page: {
       ...config.page,
       logo: {
@@ -81,27 +86,37 @@ const convertZudokuConfigToOptions = (config) => {
     ]
   };
 };
-const getRoutesByOptions = (options) => {
+const getRoutesByOptions = (options, enableStatusPages = false) => {
   const allPlugins = [
     ...options.plugins ? options.plugins : [],
     ...[]
   ];
-  const routes = allPlugins.flatMap((plugin) => isNavigationPlugin(plugin) ? plugin.getRoutes() : []).concat({
-    path: "*",
-    loader: () => {
-      throw new Response("Not Found", { status: 404 });
+  const routes = allPlugins.flatMap((plugin) => isNavigationPlugin(plugin) ? plugin.getRoutes() : []).concat(
+    enableStatusPages ? [400, 403, 404, 405, 414, 416, 500, 501, 502, 503, 504].map(
+      (statusCode) => ({
+        path: `/.static/${statusCode}`,
+        element: /* @__PURE__ */ jsx(StatusPage, { statusCode })
+      })
+    ) : []
+  ).concat([
+    {
+      path: "*",
+      loader: () => {
+        throw new Response("Not Found", { status: 404 });
+      }
     }
-  });
+  ]);
   return routes;
 };
 const getRoutesByConfig = (config) => {
   const options = convertZudokuConfigToOptions(config);
-  const routes = getRoutesByOptions(options);
+  const routes = getRoutesByOptions(options, config.enableStatusPages);
   return [
     {
       element: /* @__PURE__ */ jsx(Zudoku, { ...options, children: /* @__PURE__ */ jsx(Layout, {}) }),
       children: [
         {
+          element: /* @__PURE__ */ jsx(RouteGuard, {}),
           errorElement: /* @__PURE__ */ jsx(RouterError, {}),
           children: routes
         }
