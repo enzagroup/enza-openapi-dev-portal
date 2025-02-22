@@ -2,13 +2,12 @@ import type { ZudokuConfig } from "zudoku";
 
 const config: ZudokuConfig = {
   basePath: "/enza-openapi-dev-portal",
-
   page: {
     pageTitle: "APIs",
     logo: {
       src: {
-        light: "/logos/logo.svg",
-        dark: "/logos/logo-dark.svg",
+        light: "/enza-openapi-dev-portal/logos/logo.svg",
+        dark: "/enza-openapi-dev-portal/logos/logo-dark.svg",
       },
       width: "99px",
     },
@@ -71,7 +70,6 @@ const config: ZudokuConfig = {
       },
     ],
   },
-  redirects: [{ from: "/", to: "/docs/introduction" }],
   apis: {
     type: "file",
     input: "./apis/openapi.yaml",
