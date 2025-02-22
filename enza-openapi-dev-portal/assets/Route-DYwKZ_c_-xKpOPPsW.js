@@ -1,0 +1,2 @@
+import{o as c,O as i,$ as u,c as l}from"./entry.client-CdX3K8v7.js";import{x as f,u as m}from"./context-h_UkBLvr-bko1B0Lg.js";const x=({basePath:o,versions:t,config:e,client:s})=>{const{version:n}=c(),p=e.type==="file"?{type:e.type,input:n?e.input[n]:Object.values(e.input).at(0)}:{type:e.type,input:e.input},a=n??t.at(0);return i.jsx(f,{value:{config:{...e,version:a,versions:Object.fromEntries(t.map(r=>[r,u(o,r)])),...p}},children:i.jsx(m,{client:s,children:i.jsx(l,{})})})};export{x as OpenApiRoute};
+//# sourceMappingURL=Route-DYwKZ_c_-xKpOPPsW.js.map
