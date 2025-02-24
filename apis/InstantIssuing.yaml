@@ -1,0 +1,137 @@
+openapi: "3.0.1"
+info:
+  title: "Enza REST API Documentation"
+  description: |
+    **Welcome to the Enza REST API Developer Portal. Our API provides seamless integration for instant issuing services across Africa. This portal offers all the necessary tools, detailed documentation, and API endpoints required to empower your financial operations with real-time card issuance capabilities. Explore the portal, integrate with ease, and unlock secure, efficient, and scalable instant issuing solutions.**
+  version: "2025-02-16T14:26:47Z"
+
+servers:
+  # - url: "uat-api.enza.cloud/TX/v1"
+  - url: "https://uat-api.enza.cloud/TX/v1" 
+  
+
+tags:
+  - name: "Instant Issuing"
+    description: "Operations related to Group Request."
+
+paths:
+  /instantissuing:
+    post:
+      summary: Instant Issuing Request
+      description: |
+        ## Overview
+        This API endpoint lets you link a pre-produced card to a customer's account. It works in two ways:
+        -  1- Create Account to a new Customer, and link the pre-produced card. 
+        -  2- Create Account to an existing customer, and link the pre-produced card. 
+        
+        You can use this endpoint for both new and existing customers, depending on your needs. Make sure to provide the correct card reference number and RequestType when making the request.
+
+        ## `RequestType`
+        You **must** set the `RequestType` parameter correctly:
+
+        - **For new customers:**      `"1-NewAccountNewCustomer"`
+        - **For existing customers:** `"2-NewAccountExistingCustomer"`
+
+        By correctly setting `RequestType` and including all required fields, you ensure that the API can create the account successfully without validation errors.
+      tags:
+        - Instant Issuing
+      operationId: processGroupRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+            example:
+              RequestType: "NewAccountNewCustomer"
+              LastName: "EEE"
+              FirstName: "Cust02"
+              BirthDate: "1990-01-01"
+              Passport: "76238310075"
+              Email: "test@test.com"
+              MobilePhone: "9991234567"
+              StreetTitle: "Baker's Str"
+              Zip: "WC1X 9NX"
+              AccountNum: "AAABBB150573"
+              BranchName: "Main Branch"
+              CardRefNum: "000515"
+              EmbossedName: "Cust02 New"
+      responses:
+        "200":
+          description: "Request Processed Successfully."
+          # content:
+          #   application/json:
+          #     schema:
+          #       $ref: "#/components/schemas/Customer"
+        "400":
+          description: "Bad Request - Missing mandatory fields or invalid values."
+        "404":
+          description: "Not Found - Required subject not found."
+        "409":
+          description: "Conflict - Subject already exists."
+        "500":
+          description: "Internal Server Error - SOAP call failures, parsing errors."
+
+components:
+  schemas:
+    Customer:
+      required:
+        - RequestType
+        - AccountNum
+        - BranchName
+        - CardRefNum
+        - EmbossedName
+        - NationalId
+        - Passport
+        - FirstName
+        - LastName
+      type: object
+      properties:
+        RequestType: 
+          type: string
+          description: |
+            - `1-NewAccountNewCustomer`: New customer (requires fields `FirstName`,`LastName`).
+            - `2-NewAccountExistingCustomer`: Existing customer.
+        BranchName:
+          type: string
+          enum: [GTBR]
+          description: "Branch name `GTBR`"
+        CardRefNum:
+          type: string
+          description: "Card Reference Number"
+        EmbossedName:
+          type: string
+          description: "Name to emboss on the card"
+        AccountNum: 
+          type: string
+          description: "Customer's account number"
+        FirstName:
+          type: string
+          description: "For new customers (`RequestType: NewAccountNewCustomer`) `Mandatory`"
+        MiddleName:
+          type: string
+        LastName:
+          type: string
+          description: "For new customers (`RequestType: NewAccountNewCustomer`) `Mandatory`"
+        NationalId:
+          type: string
+          description : " `Mandatory` if Passport is not provided "
+        Passport:
+          type: string
+          description : " `Mandatory` if NationalId is not provided "
+        BirthDate:
+          type: string
+          format: date
+          example: "1990-01-01"
+        Email:
+          type: string
+          format: email
+        MobilePhone:
+          type: string
+        StreetTitle:
+          type: string
+        Zip:
+          type: string
+
+
+

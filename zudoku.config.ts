@@ -56,8 +56,8 @@ const config: ZudokuConfig = {
       ring: "156 52% 72%",
     },
   },
-
-  topNavigation: [
+  redirects: [{ from: "/", to: "/api" }],
+/*   topNavigation: [
     { id: "docs", label: "Documentation" },
     { id: "api", label: "API Reference" },
   ],
@@ -69,10 +69,10 @@ const config: ZudokuConfig = {
         items: ["docs/introduction", "docs/example"],
       },
     ],
-  },
+  }, */
   apis: {
     type: "file",
-    input: "./apis/openapi.yaml",
+    input: "./apis/InstantIssuing.yaml",
     navigationId: "api",
   },
   docs: {
